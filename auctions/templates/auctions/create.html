@@ -1,0 +1,46 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Create New Listing</h2>
+    <div class="mx-auto w-50 align-center">
+        <form action="{% url 'create' %}" method="post" autocomplete="off">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group col-md-9">
+                    <label for="title">Title</label>
+                    <input type="text" name="title" class="form-control" id="title" placeholder="Title">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="pstart">Starting Price</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">$</div>
+                        </div>
+                        <input type="text" name="pstart" class="form-control" id="pstart" placeholder="Price">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea class="form-control" name="description" id="description" rows="3" placeholder="max length 150..." style="resize: none;"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-9">
+                    <label for="imgurl">Image</label>
+                    <input style="color: darkcyan;" name="imgurl" type="text" class="form-control" id="imgurl" placeholder="Paste image url here...">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="category">Category</label><br>
+                    <select name="category" id="category" class="form-control">
+                        <option>General</option>
+                        {% for category in categories %}
+                            <option>{{ category }}</option>
+                        {% empty %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+{% endblock %}

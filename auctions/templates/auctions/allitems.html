@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h2>All Listings</h2>
+    <div class="row mx-3 my-3">
+        {% for item in items %}
+        <div class="card my-2 mx-2" style="width: 18rem;">
+            {% if not item.img%}
+            <img class="card-img-top" src="{% static 'auctions/NoPicAvailable.webp' %}" alt="no picture available">
+            {% else %}
+            <img class="card-img-top" src="{{ item.img }}" alt="{{ item.title }}">
+            {% endif %}
+            <div class="card-body mb-auto">
+                <h5 class="card-title mb-2"><a style="color: black;" href="{% url 'dispitem' item_id=item.id %}">{{ item.title }}</a></h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ item.category }}</h6>
+                {% if item.status %}
+                <h6 class="card-subtitle mb-2" style="color: darkorange;">Open</h6>
+                {% else %}
+                <h6 class="card-subtitle mb-2" style="color: darkcyan;">Closed</h6>
+                {% endif %}
+                <h6 class="card-subtitle my-2"><strong style="color: green;">${{ item.price.bid }}</strong></h6>
+                <p class="card-text">{{ item.description }}</p>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; justify-content:end; align-items: end;">
+                <a href="{% url 'dispitem' item_id=item.id %}" class="card-link mx-3" >View</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>No Listings</p>
+        {% endfor %}
+    </div>
+{% endblock %}

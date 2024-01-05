@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-    <h2>All Listings</h2>
+    <h2>All Listings with Category <span style="color: orange;">{{ catg.cat }}</span></h2>
     <div class="row mx-3 my-3">
         {% for item in items %}
         <div class="card my-2 mx-2" style="width: 18rem;">

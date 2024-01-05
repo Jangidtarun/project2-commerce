@@ -13,7 +13,7 @@ class Bid(models.Model):
         return f"{self.user}: {self.bid}"
     
 class Category(models.Model):
-    cat = models.CharField(max_length=64)
+    cat = models.CharField(max_length=64, blank=False)
 
     def __str__(self):
         return f"{self.cat}"
@@ -28,6 +28,7 @@ class Item(models.Model):
     category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE, related_name="category")
     creator = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name="user")
     watchlist = models.ManyToManyField(User, blank=True, related_name="watchlist")
+    datecreated = models.DateTimeField(default=datetime.now, blank=True)
 
     def __str__(self):
         return f"{self.title}: {self.price.bid}"

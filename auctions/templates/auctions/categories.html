@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <h2>Categories</h2>
+    {% if user.is_authenticated %}
+    <div class="row mx-2 p-2">
+        <form action="{% url 'addcategory' %}" class="nav" method="post" autocomplete="off">
+            {% csrf_token %}
+            <div class="d-flex flex-row justify-content-center align-items-center">  
+                <input type="text" id="newcat" name="newcat" class="form-control my-0 mr-2" placeholder="Add a category...">
+                <input class="btn btn-dark mx-2 my-2" type="submit" value="+" style="width: 40px;">
+            </div>
+        </form>
+    </div>
+    {% endif %}
+    {% if errormessage %}
+        <div class="alert-danger mx-2 my-1 px-2" role="alert">{{ errormessage }}</div>
+    {% endif %}
+    <h5 class="mx-4 mt-2 mb-0">Available Categories</h5>
+    <div class="row mx-2 p-2">
+        {% for cat in categorylist %}
+            <a class="card-link mx-2" href="{% url 'allwithcat' cat_id=cat.id %}">{{ cat }}</a>
+        {% endfor %}
+    </div>
+{% endblock %}

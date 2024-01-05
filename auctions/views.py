@@ -9,35 +9,38 @@ from .models import User, Item, Bid, Category, Comment
 
 
 def index(request):
-    items = Item.objects.filter(status=True)
+    items = Item.objects.filter(status=True).order_by('-datecreated')
+    categorylist = Category.objects.all().order_by('cat')
     return render(request, "auctions/index.html", {
         "items": items,
-        "categories": Category.objects.all(),
+        "categories": categorylist,
     })
 
 def allitems(request):
+    items = Item.objects.filter().order_by('-datecreated')
+    categorylist = Category.objects.all().order_by('cat')
     return render(request, "auctions/allitems.html", {
-        "items": Item.objects.all(),
-        "categories": Category.objects.all()
+        "items": items,
+        "categories": categorylist,
     })
 
 def myitems(request):
-    items = Item.objects.filter(creator=request.user)
-    return render(request, "auctions/myitems.html",{
+    items = Item.objects.filter(creator=request.user).order_by('-datecreated')
+    categorylist = Category.objects.all().order_by('cat')
+    return render(request, "auctions/myitems.html", {
         "items": items,
-        "categories": Category.objects.all()    
+        "categories": categorylist,
     })
 
 def listcategory(request):
     if request.method == "POST":
         catg = request.POST["category"]
-        items = Item.objects.filter(status=True)
-        if catg != "General":
-            categorydata = Category.objects.get(cat=catg)
-            items = Item.objects.filter(status=True, category = categorydata)
+        items = Item.objects.filter(status=True).order_by('-datecreated').order_by('-datecreated')
+        categorydata = Category.objects.get(cat=catg)
+        items = Item.objects.filter(status=True, category = categorydata).order_by('-datecreated')
         return render(request, "auctions/index.html", {
             "items": items,
-            "categories": Category.objects.all()
+            "categories": Category.objects.all().order_by('cat')
         })
 
 
@@ -96,18 +99,34 @@ def register(request):
 def create(request):
     if request.method == "POST":
         title = request.POST["title"]
+        if not title:
+            return render(request, "auctions/create.html", {
+                "titleerror": "please enter a title",
+                "categories": Category.objects.all().order_by('cat')
+            })
         startprice = request.POST["pstart"]
+        if not startprice:
+            return render(request, "auctions/create.html", {
+                "biderror": "please enter a value",
+                "categories": Category.objects.all().order_by('cat')
+            })
         description = request.POST["description"]
+        if not description:
+            return render(request, "auctions/create.html", {
+                "descerror": "please enter a brief description",
+                "categories": Category.objects.all().order_by('cat')
+            })
         imgurl = request.POST["imgurl"]
         creator = request.user
         categorydata = Category.objects.get(cat=request.POST["category"])
         
         
 
-        bid = Bid.objects.create(
+        bid = Bid(
             bid=startprice,
             user=request.user
         )
+        bid.save()
         
         Item(
             title=title, 
@@ -122,13 +141,11 @@ def create(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/create.html", {
-            "categories": Category.objects.all()
+            "categories": Category.objects.all().order_by('cat')
         })
 
 def dispitem(request, item_id):
     itemdetails = Item.objects.get(pk=item_id)
-    if itemdetails.img is None:
-        itemdetails.img = "/home/vish/Desktop/project2/commerce/auctions/static/auctions/NoPicAvailable.webp"
     inwatchlist = request.user in itemdetails.watchlist.all()
     allcomments = Comment.objects.filter(item = itemdetails).order_by("-commentime")
     itemdetails.save()
@@ -137,7 +154,7 @@ def dispitem(request, item_id):
     statusmessage = ""
     if request.user == itemdetails.creator:
         if itemdetails.creator == bidder:
-            statusmessage = "User did not want to sell the Item"
+            statusmessage = "You have closed the auction without selling"
         else:
             statusmessage = f"Item has been sold to {bidder}"
     else:
@@ -181,12 +198,13 @@ def bidit(request, item_id):
         currbid = request.POST["bidprice"]
         message = "Bid placed successfully"
         itemdetails = Item.objects.get(pk=item_id)
+        allcomments = Comment.objects.filter(item = itemdetails).order_by("-commentime")
         pricetoolowerr = False
         if not currbid:
             pricetoolowerr = True
             message = "Bid update failed: please enter price"
         else:
-            if int(currbid) > itemdetails.price.bid:
+            if int(currbid) >= itemdetails.price.bid:
                 newbid = Bid(bid=currbid, user=request.user)
                 newbid.save()
                 itemdetails.price = newbid
@@ -199,7 +217,8 @@ def bidit(request, item_id):
             "details": itemdetails,
             "inwatchlist": inwatchlist,
             "priceistoolow": pricetoolowerr,
-            "message": message
+            "message": message,
+            "comments": allcomments,
         })
 
 @login_required  
@@ -207,10 +226,12 @@ def close(request, item_id):
     itemdetails = Item.objects.get(pk=item_id)
     itemdetails.status = False
     itemdetails.save()
+    allcomments = Comment.objects.filter(item = itemdetails).order_by("-commentime")
     inwatchlist = request.user in itemdetails.watchlist.all()
     return render(request, "auctions/item.html", {
         "details": itemdetails,
         "inwatchlist": inwatchlist,
+        "comments": allcomments,
     })
 
 @login_required
@@ -245,3 +266,44 @@ def removefav(request, item_id):
     item = Item.objects.get(pk=item_id)
     item.watchlist.remove(request.user)
     return HttpResponseRedirect(reverse("watchlist"))
+
+def categoriespage(request):
+    return render(request, "auctions/categories.html", {
+        "categorylist": Category.objects.all().order_by('cat')
+    })
+    
+def addcategory(request):
+    if request.method == "POST":
+        newcat = request.POST["newcat"]
+            
+
+        if not newcat:
+            return render(request, "auctions/categories.html", {
+                "categorylist": Category.objects.all().order_by('cat'),
+                "errormessage": "please enter a category"
+            })
+        else:
+            alreadyexist = True
+            try:
+                alreadyexist = Category.objects.get(cat=newcat)
+            except:
+                alreadyexist = False
+            if not alreadyexist:
+                Category(cat=newcat).save()
+                return HttpResponseRedirect(reverse("categoriespage"))
+            else:
+                return render(request, "auctions/categories.html", {
+                "categorylist": Category.objects.all().order_by('cat'),
+                "errormessage": "category already exist",
+            })
+
+    else:
+        return HttpResponseRedirect(reverse("categoriespage"))
+    
+def allwithcat(request, cat_id):
+    categorydata = Category.objects.get(pk=cat_id)
+    items = Item.objects.filter(status=True, category = categorydata)
+    return render(request, "auctions/allwithcat.html", {
+        "items": items,
+        "catg": categorydata
+    })

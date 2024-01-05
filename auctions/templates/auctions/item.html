@@ -33,13 +33,14 @@
                         <a href="{% url 'add' item_id=details.id %}" style="color: green;">Add To Watchlist</a>
                         {% endif %}
                     </div>
+                    <h6 class="card-subtitle my-0 text-muted">Created {{ details.datecreated }}</h6>
                     {% endif %}
                 </div><hr>
                 <p style="text-wrap: wrap;" class="text-break">{{ details.description }}</p>
                 <div class="col my-2 mx-0 p-0">
                     <p class="mt-2 mb-0"> <span class="text-muted">Starting Price: </span><strong style="color: green;">${{ details.startingprice }}</strong></p>
                     <div class="row mx-0">
-                        <p class="mt-0 mb-0 mr-2"> <span class="text-muted">Current Price: </span><strong style="color: green;">${{ details.price.bid }}</strong></p>
+                        <p class="mt-0 mb-0 mr-2"> <span class="text-muted">Current Bid: </span><strong style="color: green;">${{ details.price.bid }}</strong></p>
                         <p class="mt-0 mb-0 mx-2"><span class="text-muted">Placed by: </span><strong>{{ details.price.user }}</strong></p>
                     </div>
                 </div>
@@ -84,9 +85,11 @@
                         </div>
                     </div>
                 </div>
-            
-                <div class="mx-2 my-3 p-2 w-50">
-                <h2>Comments <span style="font-size: small; color: red;">[ {{ ncomments }} ]</span></h2><hr>
+            </div>
+        {% endif %}
+        <div class="mx-2 my-3 p-2 w-50">
+            <h2>Comments <span style="font-size: small; color: red;">[ {{ ncomments }} ]</span></h2><hr>
+            {% if user.is_authenticated %}
                 <form action="{% url 'comment' item_id=details.id %}" method="post">
                     {% csrf_token %}
                     <textarea name="comment" rows="2" class="form-control my-2 shadow-none" placeholder="Add a comment..." style="border: none; background-color: aliceblue; outline: none; border-radius: 12px; resize: none;"></textarea>
@@ -97,19 +100,18 @@
                         <input type="submit" class="form-control w-25 my-2btn btn-info" value="Comment">
                     </div>
                 </form><hr>
-                <div class="col">
-                    {% for comment in comments %}
-                    <div class="col my-0">
-                        <div class="col mx-0 p-0 text-break">
-                            <p>
-                                {{ comment.message }} - <span style="color: blue;"><a href="">{{ comment.auther }}</a></span> <span class="text-muted">{{ comment.commentime }}</span> 
-                            </p>
-                        </div>
-                    </div><hr class="my-0">
-                    {% endfor %}
-                </div>  
+            {% endif %}
+            <div class="col">
+                {% for comment in comments %}
+                <div class="col my-0">
+                    <div class="col mx-0 p-0 text-break">
+                        <p>
+                            {{ comment.message }} - <span style="color: blue;"><a href="">{{ comment.auther }}</a></span> <span class="text-muted">{{ comment.commentime }}</span> 
+                        </p>
+                    </div>
+                </div><hr class="my-0">
+                {% endfor %}
             </div>
-        {% endif %}
-
+        </div>
     </div>
 {% endblock %}

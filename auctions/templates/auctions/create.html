@@ -9,6 +9,9 @@
                 <div class="form-group col-md-9">
                     <label for="title">Title</label>
                     <input type="text" name="title" class="form-control" id="title" placeholder="Title">
+                    {% if titleerror %}
+                        <div class="alert-danger mx-2 my-1 px-2" role="alert">{{ titleerror }}</div>
+                    {% endif %}
                 </div>
                 <div class="form-group col-md-3">
                     <label for="pstart">Starting Price</label>
@@ -17,12 +20,18 @@
                             <div class="input-group-text">$</div>
                         </div>
                         <input type="text" name="pstart" class="form-control" id="pstart" placeholder="Price">
+                        {% if biderror %}
+                            <div class="alert-danger mx-2 my-1 px-2" role="alert">{{ biderror }}</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea class="form-control" name="description" id="description" rows="3" placeholder="max length 150..." style="resize: none;"></textarea>
+                {% if descerror %}
+                    <div class="alert-danger mx-2 my-1 px-2" role="alert">{{ descerror }}</div>
+                {% endif %}
             </div>
             <div class="form-row">
                 <div class="form-group col-md-9">
@@ -32,10 +41,8 @@
                 <div class="form-group col-md-3">
                     <label for="category">Category</label><br>
                     <select name="category" id="category" class="form-control">
-                        <option>General</option>
                         {% for category in categories %}
                             <option>{{ category }}</option>
-                        {% empty %}
                         {% endfor %}
                     </select>
                 </div>

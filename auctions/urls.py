@@ -19,4 +19,7 @@ urlpatterns = [
     path("comment/<int:item_id>", views.commentitem, name="comment"),
     path("removefav/<int:item_id>", views.removefav, name="removefav"),
     path("remove/<int:item_id>", views.removefromwatchlist, name="remove"),
+    path("categoriespage", views.categoriespage, name="categoriespage"),
+    path("addcategory", views.addcategory, name="addcategory"),
+    path("allwithcat/<int:cat_id>", views.allwithcat, name="allwithcat"),
 ]
